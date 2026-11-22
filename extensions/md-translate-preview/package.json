@@ -1,0 +1,79 @@
+{
+  "name": "md-translate-preview",
+  "displayName": "Markdown Translate Preview (Local Ollama)",
+  "description": "Translate the current Markdown file with a local Ollama model and open a side preview.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:mdTranslate.translateReadme",
+    "onCommand:mdTranslate.translateMarkdown"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "mdTranslate.translateReadme",
+        "title": "Translate README (Side Preview)"
+      },
+      {
+        "command": "mdTranslate.translateMarkdown",
+        "title": "Translate Markdown (Side Preview)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "mdTranslate.translateReadme",
+          "when": "resourceLangId == markdown",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Markdown Translate Preview",
+      "properties": {
+        "mdTranslate.baseUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:11434/v1",
+          "description": "OpenAI 兼容接口地址（Ollama 默认 11434）"
+        },
+        "mdTranslate.model": {
+          "type": "string",
+          "default": "hy-mt",
+          "description": "Ollama 模型名"
+        },
+        "mdTranslate.targetLanguage": {
+          "type": "string",
+          "default": "zh-CN",
+          "description": "目标语言"
+        },
+        "mdTranslate.maxChars": {
+          "type": "number",
+          "default": 12000,
+          "description": "整篇一次翻译的最大字符数；超过则按标题分块翻译"
+        }
+      }
+    }
+  },
+  "license": "MIT",
+  "keywords": [
+    "markdown",
+    "translate",
+    "translation",
+    "ollama",
+    "llm",
+    "local",
+    "offline",
+    "chinese"
+  ],
+  "scripts": {
+    "package": "npx --yes @vscode/vsce@latest package --allow-missing-repository --skip-license",
+    "reinstall": "npm run package && code --install-extension md-translate-preview-0.1.0.vsix --force"
+  }
+}

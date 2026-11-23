@@ -12,6 +12,7 @@
 |---|---|---|---|
 | [md-translate-preview](./extensions/md-translate-preview) | VS Code 扩展 | 用本地 Ollama 模型把当前 Markdown 翻译成中文，并在侧边打开只读预览 | 可用 |
 | [editor-title-actions](./extensions/editor-title-actions) | VS Code 扩展 | 在编辑器标题栏加一个 Toggle Panel 按钮，顶替原生的「分栏」按钮 | 可用 |
+| [mql-tool-modify](./extensions/mql-tool-modify) | VS Code 扩展（第三方改版） | MQL Tools（`L-I-V.mql-tools`）的 macOS / CrossOver 改版：经 Wine 调用 `metaeditor.exe` 编译 MQL4/5，成功后自动把 `.ex4/.ex5` 分发到 MT4 的 `Experts/<源目录名>/` | 可用 |
 | [patch-vscode.js](./scripts/patch-vscode.js) | 补丁脚本 | 隐藏编辑器标题栏原生的「分栏」按钮（含备份 / 校验和 / 还原） | 可用 |
 
 ---
@@ -180,6 +181,18 @@ npm run reinstall   # 打包并安装到本地 VS Code（--force 覆盖旧版本
 
 ---
 
+## mql-tool-modify
+
+第三方扩展 [MQL Tools](https://github.com/L-I-V/MQL-Tools)（`L-I-V.mql-tools` v0.1.0）的 **macOS / CrossOver 改版**。原版只处理 Windows 与 Linux，macOS 上无法编译 MQL；本改版经 CrossOver Wine 调用 `metaeditor.exe` 完成编译 / 检查，并在编译成功后自动把 `.ex4/.ex5` 分发到 MT4 的 `Experts/<源文件目录名>/`。插件全部资源（约 4.2 MB）已存入 `plugin/`，可直接覆盖安装或重新打包 VSIX。
+
+```bash
+rsync -a extensions/mql-tool-modify/plugin/ "$HOME/.trae-cn/extensions/l-i-v.mql-tools-0.1.0/"
+```
+
+安装三种方式、配置项、逐处代码 diff、已知限制 → **[extensions/mql-tool-modify/README.md](./extensions/mql-tool-modify/README.md)**
+
+---
+
 ## scripts/patch-vscode.js
 
 把原生「分栏」按钮从编辑器标题栏彻底隐藏掉。因为改的是 VS Code 安装目录里的文件，脚本把**备份、校验和、还原**都做全了，可以随时回滚。
@@ -240,15 +253,24 @@ dev-toolbox/
     │   ├── package.json         # 扩展清单（命令 / 配置项）
     │   ├── .vscodeignore        # 打包排除规则
     │   └── README.md            # 扩展市场展示用说明
-    └── editor-title-actions/
-        ├── extension.js         # 转发 workbench.action.togglePanel
-        ├── package.json         # 命令 + editor/title 菜单贡献
-        └── .vscodeignore
+    ├── editor-title-actions/
+    │   ├── extension.js         # 转发 workbench.action.togglePanel
+    │   ├── package.json         # 命令 + editor/title 菜单贡献
+    │   └── .vscodeignore
+    └── mql-tool-modify/         # MQL Tools（第三方）macOS 改版
+        ├── README.md            # 详细说明：改了什么 / 怎么装 / 怎么用
+        ├── Gold_M1_Scalper_HF.mq4 / .ex4   # 测试用例
+        └── plugin/              # 插件全部资源（≈4.2 MB，可直接覆盖安装）
+            ├── out/extension.js # 改造集中在此文件
+            ├── package.json     # 扩展清单
+            ├── data/ files/ images/ media/ syntaxes/
+            └── .gitignore       # 忽略 files/help/*.chm（首次 F1 时自动下载）
 ```
 
 约定：
 
 - `extensions/` 放 VS Code 扩展，每个子目录一个独立扩展；
+- 第三方扩展的改版单独放目录（如 `mql-tool-modify/`），用 `plugin/` 存放可覆盖安装的全部资源，用目录内 `README.md` 记录相对上游的改动；
 - `scripts/` 放本机环境相关的补丁 / 运维脚本，需要改系统文件的脚本必须自带备份与还原；
 - 以后若有纯工具类脚本，放在 `tools/` 下。
 
@@ -267,10 +289,11 @@ dev-toolbox/
 
 ## English Summary
 
-`dev-toolbox` is a personal toolbox repo for fully offline tools. It currently ships three things:
+`dev-toolbox` is a personal toolbox repo for fully offline tools. It currently ships four things:
 
 - **md-translate-preview** — a ~200-line VS Code extension that translates the current Markdown file with a local Ollama model and opens a read-only side preview — no cloud services, no files written to disk.
 - **editor-title-actions** — a tiny VS Code extension that puts a **Toggle Panel** button (`$(layout-panel)`) into the editor title bar, at the exact slot where the built-in *Split Editor* button used to be.
+- **mql-tool-modify** — a macOS/CrossOver patched build of the third-party **MQL Tools** extension (`L-I-V.mql-tools`). Upstream only supports Windows/Linux; this build compiles MQL through CrossOver Wine and auto-copies the resulting `.ex4/.ex5` into MT4's `Experts/<source-folder-name>/`. Details: [extensions/mql-tool-modify/README.md](./extensions/mql-tool-modify/README.md).
 - **scripts/patch-vscode.js** — a patch script that hides the built-in *Split Editor* button. VS Code registers it in `editor/title` from the core, and extension APIs cannot remove other extensions' menu items, so hiding it has to be done at the CSS level. The script backs up the original stylesheet, appends a `:has()`-scoped rule, and rewrites the `product.json` checksum so VS Code does not warn about a modified installation.
 
 ```bash
@@ -280,9 +303,13 @@ code --install-extension extensions/md-translate-preview/md-translate-preview-0.
 # extension 2: toggle panel button
 code --install-extension extensions/editor-title-actions/editor-title-actions-0.1.0.vsix
 
+# extension 3: MQL Tools (macOS/CrossOver build) — overwrite an existing install
+rsync -a extensions/mql-tool-modify/plugin/ "$HOME/.trae-cn/extensions/l-i-v.mql-tools-0.1.0/"
+rsync -a extensions/mql-tool-modify/plugin/ "$HOME/.vscode/extensions/l-i-v.mql-tools-0.1.0/"
+
 # hide the native split button (idempotent, revertable)
 node scripts/patch-vscode.js
 node scripts/patch-vscode.js --revert
 ```
 
-After installing, run **Developer: Reload Window**. The translation command is **`Translate README (Side Preview)`**; its default endpoint is `http://127.0.0.1:11434/v1` and default model is `hy-mt`. See the Chinese sections above for configuration and troubleshooting.
+After installing, run **Developer: Reload Window**. The translation command is **`Translate README (Side Preview)`**; its default endpoint is `http://127.0.0.1:11434/v1` and default model is `hy-mt`. The MQL command is **`MQL: Compile File`** (requires CrossOver + MT4 and `mql_tools.Metaeditor.Metaeditor4Dir` pointing at `metaeditor.exe`). See the Chinese sections above for configuration and troubleshooting.

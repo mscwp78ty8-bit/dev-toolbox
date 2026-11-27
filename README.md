@@ -14,6 +14,7 @@
 | [editor-title-actions](./extensions/editor-title-actions) | VS Code 扩展 | 在编辑器标题栏加一个 Toggle Panel 按钮，顶替原生的「分栏」按钮 | 可用 |
 | [mql-tool-modify](./extensions/mql-tool-modify) | VS Code 扩展（第三方改版） | MQL Tools（`L-I-V.mql-tools`）的 macOS / CrossOver 改版：经 Wine 调用 `metaeditor.exe` 编译 MQL4/5，成功后自动把 `.ex4/.ex5` 分发到 MT4 的 `Experts/<源目录名>/` | 可用 |
 | [patch-vscode.js](./scripts/patch-vscode.js) | 补丁脚本 | 隐藏编辑器标题栏原生的「分栏」按钮（含备份 / 校验和 / 还原） | 可用 |
+| [war3-crossover-fix](./war3-crossover-fix) | 修复包 | 11 对战平台 War3 在 CrossOver 下的两个硬伤：`0xC0000005` 崩溃（DxRender.dll 补丁 + 防还原）与高 DPI 画面偏移（RetinaMode / 高 DPI 感知 / 分辨率对齐），可一键复用到新容器 | 可用 |
 
 ---
 
